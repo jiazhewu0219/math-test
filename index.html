@@ -60,10 +60,11 @@
             const generateContent = () => {
                 const newPages = [];
                 const limit = parseInt(difficulty);
+                const questionsPerPage = 20; // 調整為每頁 20 題
 
                 for (let p = 1; p <= pageCount; p++) {
                     const questions = [];
-                    for (let i = 1; i <= 24; i++) {
+                    for (let i = 1; i <= questionsPerPage; i++) {
                         let n1, n2, op, ans;
                         
                         // 決定運算符
@@ -93,7 +94,7 @@
                     <div className="no-print sticky top-0 z-50 bg-white shadow-md p-6 mb-6 border-b-4 border-blue-500">
                         <div className="max-w-5xl mx-auto">
                             <h1 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                📊 社區長輩數學練習產生器
+                                📊 社區長輩數學練習產生器 (每頁 20 題)
                             </h1>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                 <div>
@@ -128,7 +129,8 @@
                     <div className="flex flex-col items-center">
                         {pages.length === 0 && (
                             <div className="mt-20 text-slate-400 text-center no-print">
-                                <p className="text-xl">請設定參數後點擊「生成內容」</p>
+                                <p className="text-xl font-bold">目前無內容</p>
+                                <p>請設定參數後點擊「生成內容」</p>
                             </div>
                         )}
 
@@ -138,49 +140,57 @@
                                 <div className="flex justify-between items-end border-b-2 border-slate-800 pb-2 mb-8">
                                     <div>
                                         <h2 className="text-2xl font-bold">認知健康：算術練習題</h2>
-                                        <p className="text-sm text-slate-500">難度：{difficulty}以內 | 頁碼：{page.id}</p>
+                                        <p className="text-sm text-slate-500 font-medium">難度：{difficulty}以內 | 頁碼：{page.id}</p>
                                     </div>
                                     <div className="text-right">
+                                        <p className="text-lg font-bold italic">Score: ________ / 100</p>
                                         <p className="text-lg">姓名：______________</p>
-                                        <p className="text-sm mt-1">日期：2025 年 ___ 月 ___ 日</p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+                                <div className="grid grid-cols-2 gap-x-12 gap-y-8">
                                     {page.questions.map(q => (
-                                        <div key={q.id} className="flex items-center justify-between border-b border-slate-200 pb-1">
+                                        <div key={q.id} className="flex items-center justify-between border-b-2 border-slate-200 pb-2">
                                             <span className="text-2xl font-mono text-slate-400 w-8">{q.id}.</span>
-                                            <span className="text-3xl font-bold flex-1 text-center">
+                                            <span className="text-4xl font-bold flex-1 text-center">
                                                 {q.n1} {q.op} {q.n2} =
                                             </span>
-                                            <div className="w-16 h-10 border-2 border-slate-400 rounded"></div>
+                                            <div className="w-20 h-12 border-2 border-slate-400 rounded bg-slate-50"></div>
                                         </div>
                                     ))}
                                 </div>
                                 <div className="absolute bottom-10 left-0 right-0 text-center text-slate-400 text-xs">
-                                    此練習由社區長輩認知訓練產生器生成
+                                    此練習由社區長輩認知訓練產生器生成 | 每題 5 分，共 100 分
                                 </div>
                             </div>
                         ))}
 
                         {/* 答案檢核頁 */}
                         {pages.length > 0 && (
-                            <div className="page-preview page-break bg-slate-50 border-2 border-dashed border-slate-300">
+                            <div className="page-preview page-break bg-slate-50 border-2 border-dashed border-slate-400">
                                 <h2 className="text-2xl font-bold text-center mb-6 border-b-2 border-slate-300 pb-2">答案檢核頁 (勾選與對帳專用)</h2>
                                 <div className="grid grid-cols-2 gap-4">
                                     {pages.map(page => (
-                                        <div key={`ans-p-${page.id}`} className="bg-white p-3 rounded shadow-sm">
-                                            <h3 className="font-bold text-blue-700 border-b mb-2">第 {page.id} 頁答案</h3>
-                                            <div className="grid grid-cols-3 gap-x-2 gap-y-1 text-sm">
+                                        <div key={`ans-p-${page.id}`} className="bg-white p-4 rounded shadow-sm border border-slate-200">
+                                            <h3 className="font-bold text-blue-700 border-b-2 border-blue-100 mb-3 px-1">第 {page.id} 頁答案</h3>
+                                            <div className="grid grid-cols-4 gap-x-2 gap-y-2 text-base">
                                                 {page.questions.map(q => (
-                                                    <div key={q.id} className="flex gap-1">
-                                                        <span className="text-slate-400">{q.id}.</span>
-                                                        <span className="font-bold">{q.ans}</span>
+                                                    <div key={q.id} className="flex flex-col items-center bg-slate-50 rounded py-1">
+                                                        <span className="text-slate-400 text-xs font-mono">{q.id}</span>
+                                                        <span className="font-black text-slate-800">{q.ans}</span>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                                <div className="mt-10 p-4 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
+                                    <strong>督導小撇步：</strong>
+                                    <ul className="list-disc ml-5 mt-1">
+                                        <li>每題正確計 5 分，總分 100 分。</li>
+                                        <li>觀察長輩是否在特定進位或借位題目有遲疑，可紀錄於個案日誌。</li>
+                                        <li>完成後可引導長輩進行自我對答案，增進自我監測能力。</li>
+                                    </ul>
                                 </div>
                             </div>
                         )}
