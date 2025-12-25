@@ -3,32 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社區長輩認知訓練 - 數學練習產生器 (18pt)</title>
+    <title>社區長輩認知訓練 - 數學練習產生器 (18pt / 1.5倍行高)</title>
     <!-- 引入 Tailwind CSS 用於快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* A4 規格優化 */
+        /* A4 規格優化與強制分頁 */
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; }
+            
             .page-break { 
                 page-break-after: always; 
                 margin: 0 !important;
-                padding: 15mm !important;
+                padding: 10mm 15mm !important; /* 縮小邊距確保內容不超出 */
                 width: 210mm;
                 height: 297mm;
                 box-shadow: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important; /* 強制不產生捲軸 */
             }
+            
             @page {
                 size: A4;
                 margin: 0;
             }
         }
+
         body {
             font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
             -webkit-print-color-adjust: exact;
         }
-        /* 螢幕預覽時的頁面陰影 */
+
+        /* 螢幕預覽樣式 */
         .page-preview {
             width: 210mm;
             height: 297mm;
@@ -37,11 +44,24 @@
             background: white;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        /* 設定 18pt 字體大小 */
+
+        /* 18pt 字體與 1.5 倍行高設定 */
         .elderly-text {
             font-size: 18pt !important;
-            line-height: 1.6;
+            line-height: 1.5 !important; /* 設定 1.5 倍行高 */
+        }
+
+        /* 答案框固定比例 */
+        .answer-box {
+            width: 24mm;
+            height: 12mm;
+            border: 2px solid #94a3b8;
+            border-radius: 4px;
+            background-color: #f8fafc;
         }
     </style>
 </head>
@@ -98,12 +118,12 @@
                     <div className="no-print sticky top-0 z-50 bg-white shadow-md p-6 mb-6 border-b-4 border-blue-500">
                         <div className="max-w-5xl mx-auto">
                             <h1 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                📊 長輩認知訓練產生器 (18pt 強化版)
+                                📊 長輩認知訓練產生器 (1.5x 行高優化)
                             </h1>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-600 mb-1">難度 (數字上限)</label>
-                                    <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full p-2 border rounded border-slate-300">
+                                    <label className="block text-sm font-bold text-slate-600 mb-1">難度設定</label>
+                                    <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full p-2 border rounded border-slate-300 bg-white">
                                         <option value="10">初級 (10以內)</option>
                                         <option value="20">中級 (20以內)</option>
                                         <option value="100">進階 (100以內)</option>
@@ -111,7 +131,7 @@
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-slate-600 mb-1">題型選擇</label>
-                                    <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-2 border rounded border-slate-300">
+                                    <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-2 border rounded border-slate-300 bg-white">
                                         <option value="add">純加法</option>
                                         <option value="sub">純減法</option>
                                         <option value="mix">加減混合</option>
@@ -122,8 +142,8 @@
                                     <input type="number" min="1" max="20" value={pageCount} onChange={(e) => setPageCount(parseInt(e.target.value))} className="w-full p-2 border rounded border-slate-300" />
                                 </div>
                                 <div className="flex gap-2">
-                                    <button onClick={generateContent} className="flex-1 bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700">生成題目</button>
-                                    <button onClick={() => window.print()} className="flex-1 bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 transition">下載/列印</button>
+                                    <button onClick={generateContent} className="flex-1 bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 shadow-sm transition">生成題目</button>
+                                    <button onClick={() => window.print()} className="flex-1 bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 shadow-sm transition">下載/列印</button>
                                 </div>
                             </div>
                         </div>
@@ -133,56 +153,57 @@
                     <div className="flex flex-col items-center">
                         {pages.length === 0 && (
                             <div className="mt-20 text-slate-400 text-center no-print">
-                                <p className="text-xl">請設定參數後點擊「生成題目」</p>
+                                <p className="text-xl">請於上方設定後，點擊「生成題目」</p>
                             </div>
                         )}
 
                         {pages.map(page => (
-                            <div key={`p-${page.id}`} className="page-preview page-break flex flex-col">
-                                <div className="flex justify-between items-end border-b-2 border-slate-800 pb-2 mb-10">
+                            <div key={`p-${page.id}`} className="page-preview page-break">
+                                {/* 標頭區域 */}
+                                <div className="flex justify-between items-end border-b-4 border-slate-800 pb-2 mb-6">
                                     <div>
                                         <h2 className="text-3xl font-bold">數學認知練習 (第 {page.id} 頁)</h2>
-                                        <p className="text-sm text-slate-500 font-medium">難度：{difficulty} 以內 | 每題 5 分</p>
+                                        <p className="text-sm text-slate-600 font-bold">難度：{difficulty} 以內 | 每題 5 分</p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-xl font-bold italic mb-1">得分：________ / 100</p>
-                                        <p className="text-lg">姓名：________________</p>
+                                        <p className="text-xl font-bold italic mb-1 text-blue-700 underline decoration-double">得分：________ / 100</p>
+                                        <p className="text-lg font-medium">姓名：________________</p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-x-12 gap-y-6 flex-grow">
+                                {/* 題目網格 - 確保剛好填滿 A4 剩餘空間 */}
+                                <div className="grid grid-cols-2 gap-x-12 gap-y-1 flex-grow items-center">
                                     {page.questions.map(q => (
-                                        <div key={q.id} className="flex items-center justify-between border-b-2 border-slate-100 pb-3">
-                                            <span className="text-slate-400 font-mono w-8" style={{fontSize: '14pt'}}>{q.id}.</span>
-                                            <span className="elderly-text font-bold flex-1 text-center tracking-widest">
+                                        <div key={q.id} className="flex items-center justify-between border-b border-slate-200 pb-1 h-full">
+                                            <span className="text-slate-400 font-mono w-8 text-lg">{q.id}.</span>
+                                            <span className="elderly-text font-bold flex-1 text-center tracking-widest text-slate-900">
                                                 {q.n1} {q.op} {q.n2} =
                                             </span>
-                                            <div className="w-24 h-14 border-2 border-slate-400 rounded bg-white shadow-inner"></div>
+                                            <div className="answer-box"></div>
                                         </div>
                                     ))}
                                 </div>
                                 
-                                <div className="mt-8 pt-4 border-t border-slate-200 text-center text-slate-400 text-sm">
-                                    此教材由長照機構專用數學產生器生成 | 適合認知促進活動使用
+                                {/* 頁尾區域 */}
+                                <div className="mt-4 pt-2 border-t border-slate-300 flex justify-between text-slate-400 text-xs">
+                                    <span>專業長照認知教材 - 保持運算有助大腦活力</span>
+                                    <span>列印日期：{new Date().toLocaleDateString()}</span>
                                 </div>
                             </div>
                         ))}
 
                         {/* 答案檢核頁 */}
                         {pages.length > 0 && (
-                            <div className="page-preview page-break bg-slate-50 border-4 border-double border-slate-300">
-                                <h2 className="text-3xl font-bold text-center mb-10 border-b-4 border-slate-300 pb-4">【 答案檢核頁 】</h2>
+                            <div className="page-preview page-break bg-slate-50 border-4 border-double border-slate-400">
+                                <h2 className="text-3xl font-bold text-center mb-8 border-b-4 border-slate-300 pb-4">【 答案檢核頁 】</h2>
                                 <div className="grid grid-cols-2 gap-8">
                                     {pages.map(page => (
                                         <div key={`ans-p-${page.id}`} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                                            <h3 className="font-bold text-xl text-blue-800 border-b-2 border-blue-100 mb-4 pb-1 flex justify-between">
-                                                <span>第 {page.id} 頁</span>
-                                                <span className="text-sm font-normal text-slate-400">核對用</span>
-                                            </h3>
+                                            <h3 className="font-bold text-xl text-blue-800 border-b-2 border-blue-100 mb-4 pb-1">第 {page.id} 頁答案</h3>
                                             <div className="grid grid-cols-4 gap-2 text-lg">
                                                 {page.questions.map(q => (
                                                     <div key={q.id} className="flex flex-col items-center bg-slate-50 rounded py-2 border border-slate-100">
-                                                        <span className="text-slate-400 text-xs font-mono mb-1">{q.id}</span>
+                                                        <span className="text-slate-400 text-xs font-mono">{q.id}</span>
                                                         <span className="font-black text-slate-900">{q.ans}</span>
                                                     </div>
                                                 ))}
@@ -190,13 +211,13 @@
                                         </div>
                                     ))}
                                 </div>
-                                <div className="mt-12 p-6 bg-blue-50 border-l-8 border-blue-400 rounded text-blue-900">
-                                    <p className="font-bold mb-2">督導實務紀錄要點：</p>
-                                    <ul className="list-disc ml-5 space-y-1 text-sm">
-                                        <li>正確率：紀錄長輩完成的百分比。</li>
-                                        <li>反應時間：長輩是否在某些數字組合停頓較久（觀察執行功能缺損）。</li>
-                                        <li>錯誤型態：是運算錯誤，還是數字書寫不清（觀察精細動作控制）。</li>
-                                    </ul>
+                                <div className="mt-auto p-6 bg-white border border-slate-300 rounded shadow-inner">
+                                    <p className="font-bold text-slate-800 mb-2">督導評估紀錄指標：</p>
+                                    <div className="grid grid-cols-3 gap-4 text-sm text-slate-600">
+                                        <div className="p-2 bg-slate-50 rounded">● 正確率 (Quantitative)</div>
+                                        <div className="p-2 bg-slate-50 rounded">● 反應潛伏期 (Latency)</div>
+                                        <div className="p-2 bg-slate-50 rounded">● 書寫穩定度 (Motor)</div>
+                                    </div>
                                 </div>
                             </div>
                         )}
