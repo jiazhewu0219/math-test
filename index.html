@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>社區長輩認知訓練 - 數學練習產生器 (18pt / 1.5倍行高)</title>
+    <title>社區長輩認知訓練 - 數學練習產生器 (Logo 整合版)</title>
     <!-- 引入 Tailwind CSS 用於快速排版 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -15,18 +15,23 @@
             .page-break { 
                 page-break-after: always; 
                 margin: 0 !important;
-                padding: 10mm 15mm !important; /* 縮小邊距確保內容不超出 */
+                padding: 10mm 15mm !important; 
                 width: 210mm;
                 height: 297mm;
                 box-shadow: none !important;
                 display: flex !important;
                 flex-direction: column !important;
-                overflow: hidden !important; /* 強制不產生捲軸 */
+                overflow: hidden !important; 
             }
             
             @page {
                 size: A4;
                 margin: 0;
+            }
+
+            /* 列印時強制顯示圖片（部分瀏覽器預設不印背景，但會印 <img>） */
+            img {
+                -webkit-print-color-adjust: exact;
             }
         }
 
@@ -52,7 +57,7 @@
         /* 18pt 字體與 1.5 倍行高設定 */
         .elderly-text {
             font-size: 18pt !important;
-            line-height: 1.5 !important; /* 設定 1.5 倍行高 */
+            line-height: 1.5 !important;
         }
 
         /* 答案框固定比例 */
@@ -62,6 +67,12 @@
             border: 2px solid #94a3b8;
             border-radius: 4px;
             background-color: #f8fafc;
+        }
+
+        .unit-logo {
+            height: 12mm;
+            width: auto;
+            object-fit: contain;
         }
     </style>
 </head>
@@ -81,6 +92,8 @@
             const [type, setType] = useState('mix');
             const [pageCount, setPageCount] = useState(1);
             const [pages, setPages] = useState([]);
+
+            const logoUrl = "https://play-lh.googleusercontent.com/eaiCaZWpghyqTASzlV-7I7Tl2KTbijP1xuQ5LQLiedyO-1l4uaxxC1PCijIF8RV8nJZU=w240-h480-rw";
 
             const generateContent = () => {
                 const newPages = [];
@@ -114,11 +127,17 @@
 
             return (
                 <div className="min-h-screen pb-10">
+                    {/* 網頁 Logo 頂欄 */}
+                    <div className="no-print bg-slate-800 text-white p-2 px-6 flex items-center gap-3">
+                        <img src={logoUrl} alt="Logo" className="h-10 w-10 rounded-full bg-white p-1" />
+                        <span className="font-bold tracking-wider">長照機構專業行政系統</span>
+                    </div>
+
                     {/* 控制面板 */}
                     <div className="no-print sticky top-0 z-50 bg-white shadow-md p-6 mb-6 border-b-4 border-blue-500">
                         <div className="max-w-5xl mx-auto">
                             <h1 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                📊 長輩認知訓練產生器 (1.5x 行高優化)
+                                📊 數學認知訓練產生器
                             </h1>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                                 <div>
@@ -143,7 +162,7 @@
                                 </div>
                                 <div className="flex gap-2">
                                     <button onClick={generateContent} className="flex-1 bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 shadow-sm transition">生成題目</button>
-                                    <button onClick={() => window.print()} className="flex-1 bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 shadow-sm transition">下載/列印</button>
+                                    <button onClick={() => window.print()} className="flex-1 bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 shadow-sm transition">列印 / 下載</button>
                                 </div>
                             </div>
                         </div>
@@ -159,11 +178,14 @@
 
                         {pages.map(page => (
                             <div key={`p-${page.id}`} className="page-preview page-break">
-                                {/* 標頭區域 */}
-                                <div className="flex justify-between items-end border-b-4 border-slate-800 pb-2 mb-6">
-                                    <div>
-                                        <h2 className="text-3xl font-bold">數學認知練習 (第 {page.id} 頁)</h2>
-                                        <p className="text-sm text-slate-600 font-bold">難度：{difficulty} 以內 | 每題 5 分</p>
+                                {/* 標頭區域：包含 Logo */}
+                                <div className="flex justify-between items-start border-b-4 border-slate-800 pb-2 mb-6">
+                                    <div className="flex gap-4 items-center">
+                                        <img src={logoUrl} alt="Unit Logo" className="unit-logo" />
+                                        <div>
+                                            <h2 className="text-3xl font-bold">數學認知練習 (第 {page.id} 頁)</h2>
+                                            <p className="text-sm text-slate-600 font-bold">難度：{difficulty} 以內 | 每題 5 分</p>
+                                        </div>
                                     </div>
                                     <div className="text-right">
                                         <p className="text-xl font-bold italic mb-1 text-blue-700 underline decoration-double">得分：________ / 100</p>
@@ -171,7 +193,7 @@
                                     </div>
                                 </div>
 
-                                {/* 題目網格 - 確保剛好填滿 A4 剩餘空間 */}
+                                {/* 題目網格 */}
                                 <div className="grid grid-cols-2 gap-x-12 gap-y-1 flex-grow items-center">
                                     {page.questions.map(q => (
                                         <div key={q.id} className="flex items-center justify-between border-b border-slate-200 pb-1 h-full">
@@ -184,7 +206,6 @@
                                     ))}
                                 </div>
                                 
-                                {/* 頁尾區域 */}
                                 <div className="mt-4 pt-2 border-t border-slate-300 flex justify-between text-slate-400 text-xs">
                                     <span>專業長照認知教材 - 保持運算有助大腦活力</span>
                                     <span>列印日期：{new Date().toLocaleDateString()}</span>
@@ -195,7 +216,11 @@
                         {/* 答案檢核頁 */}
                         {pages.length > 0 && (
                             <div className="page-preview page-break bg-slate-50 border-4 border-double border-slate-400">
-                                <h2 className="text-3xl font-bold text-center mb-8 border-b-4 border-slate-300 pb-4">【 答案檢核頁 】</h2>
+                                <div className="flex justify-between items-center mb-6 border-b-4 border-slate-300 pb-4">
+                                    <img src={logoUrl} alt="Unit Logo" className="h-12 w-auto" />
+                                    <h2 className="text-3xl font-bold text-center">【 答案檢核頁 】</h2>
+                                    <div className="w-12"></div> {/* 佔位保持標題居中 */}
+                                </div>
                                 <div className="grid grid-cols-2 gap-8">
                                     {pages.map(page => (
                                         <div key={`ans-p-${page.id}`} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
@@ -212,11 +237,11 @@
                                     ))}
                                 </div>
                                 <div className="mt-auto p-6 bg-white border border-slate-300 rounded shadow-inner">
-                                    <p className="font-bold text-slate-800 mb-2">督導評估紀錄指標：</p>
+                                    <p className="font-bold text-slate-800 mb-2 underline decoration-blue-500">督導評估指標紀錄說明：</p>
                                     <div className="grid grid-cols-3 gap-4 text-sm text-slate-600">
-                                        <div className="p-2 bg-slate-50 rounded">● 正確率 (Quantitative)</div>
-                                        <div className="p-2 bg-slate-50 rounded">● 反應潛伏期 (Latency)</div>
-                                        <div className="p-2 bg-slate-50 rounded">● 書寫穩定度 (Motor)</div>
+                                        <div className="p-2 bg-slate-50 rounded border-l-4 border-blue-400">● 認知正確率：量化紀錄進展。</div>
+                                        <div className="p-2 bg-slate-50 rounded border-l-4 border-blue-400">● 執行速度：觀察神經傳導反應。</div>
+                                        <div className="p-2 bg-slate-50 rounded border-l-4 border-blue-400">● 書寫品質：監測末梢精細動作。</div>
                                     </div>
                                 </div>
                             </div>
